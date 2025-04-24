@@ -4,7 +4,7 @@ from energy import energy
 from utils import Normalizer
 
 
-def minimize_energy(existing_points, bounds=None, num_restarts=10):
+def minimize_energy(existing_points, bounds=None, num_restarts=10, k=4):
     """
     Find the point that minimizes energy with respect to existing points.
 
@@ -16,11 +16,12 @@ def minimize_energy(existing_points, bounds=None, num_restarts=10):
         bounds (list of tuples, optional): List of (min, max) tuples for each dimension.
                                           Defaults to [(0, 1)] for each dimension.
         num_restarts (int, optional): Number of optimization attempts. Defaults to 10.
+        k (float, optional): The exponent parameter for the energy function. Defaults to 4.
 
     Returns:
         np.array: The point that minimizes the energy function.
     """
-    obj_func = lambda x: energy(x, existing_points)
+    obj_func = lambda x: energy(x, existing_points, k)
     dim = existing_points.shape[1]
 
     # Set default bounds if not provided
@@ -48,7 +49,7 @@ def minimize_energy(existing_points, bounds=None, num_restarts=10):
     return best_x
 
 
-def generate_med_points(num_points, existing_points, bounds=None, num_restarts=10):
+def generate_med_points(num_points, existing_points, bounds=None, num_restarts=10, k=4):
     """
     Generate multiple points using Minimum Energy Design (MED) with domain bounds.
 
@@ -62,6 +63,7 @@ def generate_med_points(num_points, existing_points, bounds=None, num_restarts=1
                                          If None, bounds will be determined from existing_points.
         num_restarts (int, optional): Number of optimization attempts per point.
                                      Defaults to 10.
+        k (float, optional): The exponent parameter for the energy function. Defaults to 4.
 
     Returns:
         np.array: Array of newly generated points (num_points x d) within specified bounds.
@@ -78,7 +80,7 @@ def generate_med_points(num_points, existing_points, bounds=None, num_restarts=1
 
     for i in range(num_points):
         # Use [0,1] bounds for optimization since we're in normalized space
-        new_point = minimize_energy(current_points, num_restarts=num_restarts)
+        new_point = minimize_energy(current_points, num_restarts=num_restarts, k=k)
         new_scaled_points[i] = new_point
         current_points = np.vstack((current_points, new_point))
 
